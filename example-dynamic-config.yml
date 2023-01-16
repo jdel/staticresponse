@@ -2,32 +2,26 @@ http:
   routers:
     noresponse:
       rule: PathPrefix(`/no`)
-      service: blackhole
+      service: noop@internal
       entryPoints:
         - web
       middlewares:
         - 444noresponse
     error:
       rule: PathPrefix(`/error`)
-      service: blackhole
+      service: noop@internal
       entryPoints:
         - web
       middlewares:
         - 500error
     secret:
       rule: PathPrefix(`/secret`)
-      service: blackhole
+      service: noop@internal
       entryPoints:
         - web
       middlewares:
         - 200+header
 
-  services:
-   blackhole:
-      loadBalancer:
-        servers:
-          - url: http://127.0.0.1:5000
-  
   middlewares:
     444noresponse:
       plugin:
