@@ -12,14 +12,16 @@ services:
       - .:/plugins-local/src/github.com/jdel/staticresponse:ro
     command:
       - --log
-      - --log.level=DEBUG
+      - --log.level=ERROR
       - --api=true
       - --api.insecure=true
       - --api.dashboard=true
       - --providers.docker=true
       - --entrypoints.web
       - --entrypoints.web.address=:9090
-      - --experimental.localPlugins.staticresponse.moduleName=github.com/jdel/staticresponse
+      # - --experimental.localPlugins.staticresponse.moduleName=github.com/jdel/staticresponse
+      - --experimental.plugins.staticresponse.moduleName=github.com/jdel/staticresponse
+      - --experimental.plugins.staticresponse.version=v0.0.1
       - --providers.file.filename=/plugins-local/src/github.com/jdel/staticresponse/example-dynamic-config.yml
     labels:
       - traefik.http.middlewares.418teapot.plugin.staticresponse

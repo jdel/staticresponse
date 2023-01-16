@@ -1,9 +1,3 @@
-experimental:
-  plugins:
-    staticresponse:
-      moduleName: "github.com/jdel/staticresponse"
-      version: "v0.0.1"
-
 http:
   routers:
     noresponse:
