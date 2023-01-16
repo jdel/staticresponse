@@ -1,0 +1,40 @@
+version: '2'
+
+services:
+  traefik:
+    image: traefik:2.9
+    container_name: traefik
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - .:/plugins-local/src/github.com/jdel/staticresponse:ro
+    command:
+      - --log
+      - --log.level=DEBUG
+      - --api=true
+      - --api.insecure=true
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --entrypoints.web
+      - --entrypoints.web.address=:9090
+      - --experimental.localPlugins.staticresponse.moduleName=github.com/jdel/staticresponse
+      - --providers.file.filename=/plugins-local/src/github.com/jdel/staticresponse/example-dynamic-config.yml
+    labels:
+      - traefik.http.middlewares.418teapot.plugin.staticresponse
+      - traefik.http.middlewares.418teapot.plugin.staticresponse.StatusCode=418
+      - traefik.http.middlewares.418teapot.plugin.staticresponse.Body=I'm a teapot
+      - traefik.http.middlewares.418teapot.plugin.staticresponse.Headers.X-Secret-Header=donttell,anyone,please
+      - traefik.http.middlewares.200ok.plugin.staticresponse
+      - traefik.http.middlewares.200ok.plugin.staticresponse.StatusCode=200
+      - traefik.http.middlewares.200ok.plugin.staticresponse.Headers.X-First-Header=first
+      - traefik.http.middlewares.200ok.plugin.staticresponse.Headers.X-Secont-Header=second
+      - traefik.http.routers.ok-rule.rule=PathPrefix(`/ok`)
+      - traefik.http.routers.ok-rule.service=noop@internal
+      - traefik.http.routers.ok-rule.entrypoints=web
+      - traefik.http.routers.ok-rule.middlewares=200ok
+      - traefik.http.routers.nok-rule.rule=PathPrefix(`/tea`)
+      - traefik.http.routers.nok-rule.service=noop@internal
+      - traefik.http.routers.nok-rule.entrypoints=web
+      - traefik.http.routers.nok-rule.middlewares=418teapot

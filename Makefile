@@ -8,7 +8,7 @@ lint:
 	golangci-lint run
 
 test:
-	go test -v -cover ./...
+	go test -v -cover -coverprofile coverage.out ./...
 
 yaegi_test:
 	yaegi test -v .
@@ -17,4 +17,5 @@ vendor:
 	go mod vendor
 
 clean:
-	rm -rf ./vendor
+	-rm -rf ./vendor
+	-rm coverage.out

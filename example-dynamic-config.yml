@@ -1,0 +1,53 @@
+experimental:
+  plugins:
+    staticresponse:
+      moduleName: "github.com/jdel/staticresponse"
+      version: "v0.0.1"
+
+http:
+  routers:
+    noresponse:
+      rule: PathPrefix(`/no`)
+      service: blackhole
+      entryPoints:
+        - web
+      middlewares:
+        - 444noresponse
+    error:
+      rule: PathPrefix(`/error`)
+      service: blackhole
+      entryPoints:
+        - web
+      middlewares:
+        - 500error
+    secret:
+      rule: PathPrefix(`/secret`)
+      service: blackhole
+      entryPoints:
+        - web
+      middlewares:
+        - 200+header
+
+  services:
+   blackhole:
+      loadBalancer:
+        servers:
+          - url: http://127.0.0.1:5000
+  
+  middlewares:
+    444noresponse:
+      plugin:
+        staticresponse:
+          StatusCode: 444
+          Body: I said no response!
+    500error:
+      plugin:
+        staticresponse:
+          StatusCode: 500
+          Body: Internal Server Error
+    200+header:
+      plugin:
+        staticresponse:
+          StatusCode: 200
+          Headers:
+            X-Secret-Header: shhhhhh

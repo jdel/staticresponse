@@ -1,12 +1,11 @@
-displayName: Demo Plugin
+displayName: Static Response
 type: middleware
 iconPath: .assets/icon.png
 
-import: github.com/traefik/plugindemo
+import: github.com/jdel/staticresponse
 
-summary: '[Demo] Add Request Header'
+summary: 'Static Response Middleware'
 
 testData:
-  Headers:
-    X-Demo: test
-    X-URL: '{{URL}}'
+  StatusCode: 200
+  Body: OK
