@@ -9,3 +9,6 @@ summary: 'Static Response Middleware'
 testData:
   StatusCode: 200
   Body: OK
+  Headers:
+    X-Test-Header: OK
+
