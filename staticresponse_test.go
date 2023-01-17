@@ -11,12 +11,14 @@ import (
 	"github.com/jdel/staticresponse"
 )
 
+type TestCase struct {
+	desc          string
+	cfg           *staticresponse.Config
+	expectedError bool
+}
+
 func TestStaticResponse(t *testing.T) {
-	testCases := []struct {
-		desc          string
-		cfg           *staticresponse.Config
-		expectedError bool
-	}{
+	testCases := []TestCase{
 		{
 			desc: "default config",
 			cfg:  staticresponse.CreateConfig(),
@@ -50,13 +52,17 @@ func TestStaticResponse(t *testing.T) {
 	for _, test := range testCases {
 		test := test
 		t.Run(test.desc, func(t *testing.T) {
-			// t.Parallel()
+			t.Parallel()
 
 			ctx := context.Background()
 			next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {})
 
-			handler, handlerErr := staticresponse.New(ctx, next, test.cfg, "staticresponse")
-			if !test.expectedError {
+			handler, err := staticresponse.New(ctx, next, test.cfg, "staticresponse")
+			if test.expectedError {
+				if err == nil {
+					t.Fatal("error expected")
+				}
+			} else {
 				recorder := httptest.NewRecorder()
 
 				req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://localhost", nil)
@@ -66,20 +72,22 @@ func TestStaticResponse(t *testing.T) {
 
 				handler.ServeHTTP(recorder, req)
 
-				if recorder.Result().StatusCode != test.cfg.StatusCode {
-					t.Errorf("invalid response code: %d (expected %d)", recorder.Result().StatusCode, test.cfg.StatusCode)
-				}
-
-				if b, err := io.ReadAll(recorder.Result().Body); err == nil && string(b) != test.cfg.Body {
-					t.Errorf("invalid response body: %s (expected %s)", string(b), test.cfg.Body)
-				}
-
-				if !reflect.DeepEqual(recorder.Result().Header, test.cfg.Headers) {
-					t.Errorf("headers mismatch: %v (expected %v)", test.cfg.Headers, recorder.Result().Header)
-				}
-			} else if handlerErr == nil {
-				t.Fatal("error expected")
+				assertResult(t, *recorder, test)
 			}
 		})
 	}
 }
+
+func assertResult(t *testing.T, recorder httptest.ResponseRecorder, test TestCase) {
+	t.Helper()
+	if recorder.Result().StatusCode != test.cfg.StatusCode {
+		t.Errorf("invalid response code: %d (expected %d)", recorder.Result().StatusCode, test.cfg.StatusCode)
+	}
+	if b, err := io.ReadAll(recorder.Result().Body); err == nil && string(b) != test.cfg.Body {
+		t.Errorf("invalid response body: %s (expected %s)", string(b), test.cfg.Body)
+	}
+	if !reflect.DeepEqual(recorder.Result().Header, test.cfg.Headers) {
+		t.Errorf("headers mismatch: %v (expected %v)", test.cfg.Headers, recorder.Result().Header)
+	}
+}
+

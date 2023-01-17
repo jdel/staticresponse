@@ -52,7 +52,7 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 	}, nil
 }
 
-// Implement ServeHTTP function to make StaticResponse comply with http.Handler interface
+// ServeHTTP function required to make StaticResponse comply with http.Handler interface.
 func (s *StaticResponse) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	// Set headers first before sending the response
 	for key, values := range s.headers {
