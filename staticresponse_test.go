@@ -90,4 +90,3 @@ func assertResult(t *testing.T, recorder httptest.ResponseRecorder, test TestCas
 		t.Errorf("headers mismatch: %v (expected %v)", test.cfg.Headers, recorder.Result().Header)
 	}
 }
-
